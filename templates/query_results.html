@@ -7,6 +7,33 @@
     <title>Title</title>
 </head>
 <body>
-
+<topleft>
+<a href="index">Home</a><br>
+<a href="query_results">Query Results</a><br>
+<a href="add_movie">Add Movie</a><br>
+</topleft>
+<center>
+<h1> Simple Disney Tracker Website</h1>
+Genre statistics:
+    <table border="1" width="15%">
+    <th>Genre</th>
+    <!--<th>Max Gross Movie</th>
+    <th>Max Gross Movie Gross</th>-->
+    <th>Year Count</th>
+    <!--<th>Max Length Movie</th>-->
+        {% for movies in sql_res_1%}
+            <tr>
+            <td>{{movies.genre }} </td>
+            <td>{{movies.yearCount}} </td>
+            </tr>
+        {% endfor %}
+    </table><br>
+<form method="POST">
+    {% csrf_token %}
+    Number Of Movies: <textarea name="num_movies" rows="1" cols="10"></textarea><br>
+    <input type="submit">
+</form>
+<br>
+</center>
 </body>
 </html>
