@@ -14,17 +14,20 @@
 </topleft>
 <center>
 <h1> Simple Disney Tracker Website</h1>
-Genre statistics:
+<h2>Genre statistics</h2>
     <table border="1" width="15%">
     <th>Genre</th>
-    <!--<th>Max Gross Movie</th>
-    <th>Max Gross Movie Gross</th>-->
+    <th>Max Gross Movie</th>
+    <th>Max Gross Movie Gross</th>
     <th>Year Count</th>
-    <!--<th>Max Length Movie</th>-->
+    <th>Max Length Movie</th>
         {% for movies in sql_res_1%}
             <tr>
             <td>{{movies.genre }} </td>
-            <td>{{movies.yearCount}} </td>
+            <td>{{movies.MaxGrossMovie}} </td>
+            <td>{{movies.MaxGrossMovieGross }} </td>
+            <td>{{movies.yearCount }} </td>
+            <td>{{movies.MaxLenMovie }} </td>
             </tr>
         {% endfor %}
     </table><br>
