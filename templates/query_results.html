@@ -15,7 +15,7 @@
 <center>
 <h1> Simple Disney Tracker Website</h1>
 <h2>Genre statistics</h2>
-    <table border="1" width="15%">
+    <table border="5" width="60%">
     <th>Genre</th>
     <th>Max Gross Movie</th>
     <th>Max Gross Movie Gross</th>
@@ -31,12 +31,38 @@
             </tr>
         {% endfor %}
     </table><br>
+
+    <h3>Actors that played in more than Number Of Movies movies:</h3>
+
 <form method="POST">
     {% csrf_token %}
-    Number Of Movies: <textarea name="num_movies" rows="1" cols="10"></textarea><br>
+    Number Of Movies: <textarea name="num_movies" type = "number" min = "0" step = "1" rows="1" cols="10"></textarea><br>
     <input type="submit">
 </form>
+{% if sql_res_2 %}
+<table border="5" width="60%">
+    <th>Actor</th>
+    <th>Movie</th>
+        {% for actor in sql_res_2%}
+            <tr>
+            <td>{{actor.actor}} </td>
+            <td>{{actor.Movie}} </td>
+            </tr>
+        {% endfor %}
+    </table><br>
+{% endif %}
 <br>
+<h3>Movies with most 'Children only' Actors</h3>
+<table border="5" width="60%">
+    <th>Movie</th>
+    <th>Number of 'Children only' Actors</th>
+        {% for actor in sql_res_3%}
+            <tr>
+            <td>{{actor.movie}} </td>
+            <td>{{actor.childrenActors}} </td>
+            </tr>
+        {% endfor %}
+    </table><br>
 </center>
 </body>
 </html>

@@ -66,4 +66,54 @@ def query_results(request):
                         GROUP BY maxLenMovie.genre) lenMovie
             ON lenMovie.genre = MovieGross.genre""")
         sql_res1 = dictfetchall(cursor)
-    return render(request, 'query_results.html', {'sql_res_1': sql_res1})
+
+    with connection.cursor() as cursor:
+        cursor.execute("""SELECT TOP 5 movie, childrenActors
+FROM (
+SELECT DistActors.movie, COUNT(*) as childrenActors
+FROM (SELECT GActors.actor
+        FROM (
+                    SELECT DistActors.actor, COUNT(*) as Gfilms
+                    FROM (SELECT DISTINCT actor, movie
+                          FROM ActorsInMovies) as DistActors
+                                                INNER JOIN Movies M on M.movieTitle = DistActors.movie
+                    WHERE actor NOT IN (
+                                        SELECT actor
+                                        FROM (SELECT DISTINCT actor, movie
+                                              FROM ActorsInMovies) as DistActors
+                                         INNER JOIN Movies M on M.movieTitle = DistActors.movie
+                                        WHERE M.rating = 'R')
+                                        and M.rating = 'G'
+                    GROUP BY DistActors.actor) as GActors
+        WHERE Gfilms >=4) as ActorsForChildren INNER JOIN (SELECT DISTINCT actor, movie
+                                                            FROM ActorsInMovies) as DistActors
+                                                ON ActorsForChildren.actor = DistActors.actor
+    GROUP BY DistActors.movie) as ChildrenMovies
+ORDER BY childrenActors DESC, movie;""")
+        sql_res3 = dictfetchall(cursor)
+
+    if request.method == 'POST' and request.POST:
+        with connection.cursor() as cursor:
+            movie_num = int(request.POST["num_movies"])
+            cursor.execute("""SELECT actorMinDate.actor, min(M2.movieTitle) as Movie
+       FROM (
+               SELECT relevantActors.actor, min(releaseDate) as minRelease
+               FROM (
+                       SELECT actor
+                       FROM(
+                           SELECT actor, count(*) as count_movie
+                           FROM(SELECT DISTINCT actor, movie
+                                FROM ActorsInMovies) as uniqueMovies
+                           GROUP BY actor) as CountMovies
+                       WHERE count_movie > %s) as relevantActors INNER JOIN ActorsInMovies
+                                               ON relevantActors.actor =  ActorsInMovies.actor
+                           INNER JOIN Movies M on M.movieTitle = ActorsInMovies.movie
+               GROUP BY relevantActors.actor) as actorMinDate
+               INNER JOIN ActorsInMovies ON ActorsInMovies.actor = actorMinDate.actor
+               INNER JOIN Movies M2 on ActorsInMovies.movie = M2.movieTitle
+       WHERE actorMinDate.minRelease = M2.releaseDate
+       GROUP BY actorMinDate.actor;""", [movie_num])
+            sql_res2 = dictfetchall(cursor)
+        return render(request, 'query_results.html', {'sql_res_1': sql_res1, 'sql_res_2': sql_res2, 'sql_res_3': sql_res3})
+
+    return render(request, 'query_results.html', {'sql_res_1': sql_res1, 'sql_res_3': sql_res3})
